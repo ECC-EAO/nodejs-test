@@ -47,5 +47,7 @@ objects:
     generation: 2
     labels:
       build: ${NAME}
+      app: ${NAME}
+      version: ${IMAGE_TAG}
     name: ${NAME}
     namespace: c183df-dev
