@@ -1,0 +1,51 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+parameters:
+- name: NAME
+  required: true
+  description: the name of the components
+- name: IMAGE_TAG
+  required: true
+  description: the output image stream tag
+objects:
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: '${NAME}:${IMAGE_TAG}'
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        uri: https://github.com/ECC-EAO/nodejs-test.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: 'nodejs-18-minimal:latest'
+      type: Docker
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - github:
+        secret: RqNCiia6tqCAVZOTA4W4
+      type: GitHub
+    - generic:
+        secret: 3cFfLmSo3QyQ-4S2TGHo
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewBuild
+    generation: 2
+    labels:
+      build: ${NAME}
+    name: ${NAME}
+    namespace: c183df-dev
