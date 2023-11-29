@@ -4,7 +4,7 @@ parameters:
   - name: NAMESPACE
     default: c183df-dev
     description: the spacespace to deploy to
-  - name: NAME
+  - name: TS_NAME
     required: true
     description: the name of the service component
   - name: OUTPUT_TAG
@@ -20,7 +20,7 @@ objects:
     spec:
       podSelector:
         matchLabels:
-          name: ${NAME}-${OUTPUT_TAG}
+          name: ${TS_NAME}-${OUTPUT_TAG}
       ingress:
         - from:
             - namespaceSelector:

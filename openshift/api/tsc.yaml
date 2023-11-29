@@ -4,19 +4,19 @@ parameters:
   - name: NAMESPACE
     default: c183df-dev
     description: the spacespace to deploy to
-  - name: NAME
+  - name: TSC_NAME
     required: true
     description: the name of the service component
 objects:
   - apiVersion: porter.devops.gov.bc.ca/v1alpha1
     kind: TransportServerClaim
     metadata:
-      name: ${NAME}-tsc
+      name: ${TSC_NAME}-tsc
       namespace: ${NAMESPACE}
     spec:
       monitor:
         interval: 10
         timeout: 10
         type: tcp
-      service: ${NAME}
+      service: ${TSC_NAME}
       servicePort: 8080

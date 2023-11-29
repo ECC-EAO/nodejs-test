@@ -1,12 +1,15 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 parameters:
-- name: NAME
+- name: BUILD_NAME
   required: true
   description: the name of the components
-- name: IMAGE_TAG
+- name: OUTPUT_TAG
   required: true
   description: the output image stream tag
+- name: NAMESPACE
+  default: c183df-dev
+  description: the spacespace to deploy to
 objects:
 - apiVersion: build.openshift.io/v1
   kind: BuildConfig
@@ -16,7 +19,7 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: '${NAME}:${IMAGE_TAG}'
+        name: '${BUILD_NAME}:${OUTPUT_TAG}'
     postCommit: {}
     resources: {}
     runPolicy: Serial
@@ -46,8 +49,8 @@ objects:
       openshift.io/generated-by: OpenShiftNewBuild
     generation: 2
     labels:
-      build: ${NAME}
-      app: ${NAME}
-      version: ${IMAGE_TAG}
-    name: ${NAME}
+      build: ${BUILD_NAME}
+      app: ${BUILD_NAME}
+      version: ${OUTPUT_TAG}
+    name: ${BUILD_NAME}
     namespace: c183df-dev

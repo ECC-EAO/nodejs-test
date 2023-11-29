@@ -1,14 +1,11 @@
 kind: Template
 apiVersion: template.openshift.io/v1
 parameters:
-  - name: APP_PORT
-    description: the application port
-    value: '8080'
   - name: OUTPUT_TAG
     description: The output image tag
     default: dev
     required: true
-  - name: NAME
+  - name: DEPLOYMENT_NAME
     required: true
     description: the name of the components
   - name: NAMESPACE
@@ -21,8 +18,8 @@ objects:
     spec:
       replicas: 1
       selector:
-        app: ${NAME}-${OUTPUT_TAG}
-        deploymentConfig: ${NAME}
+        app: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
+        deploymentConfig: ${DEPLOYMENT_NAME}
       strategy:
         resources: {}
       template:
@@ -31,13 +28,13 @@ objects:
             openshift.io/generated-by: OpenShiftNewApp
           creationTimestamp: null
           labels:
-            app: ${NAME}-${OUTPUT_TAG}
-            deploymentConfig: ${NAME}
+            app: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
+            deploymentConfig: ${DEPLOYMENT_NAME}
         spec:
           containers:
             - image: >-
-                image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${NAME}:${OUTPUT_TAG}
-              name: ${NAME}
+                image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${DEPLOYMENT_NAME}:${OUTPUT_TAG}
+              name: ${DEPLOYMENT_NAME}
               env:
                 - name: PORT
                   value: '8080'
@@ -51,19 +48,19 @@ objects:
         - imageChangeParams:
             automatic: true
             containerNames:
-              - ${NAME}
+              - ${DEPLOYMENT_NAME}
             from:
               kind: ImageStreamTag
-              name: '${NAME}:${OUTPUT_TAG}'
+              name: '${DEPLOYMENT_NAME}:${OUTPUT_TAG}'
               namespace: ${NAMESPACE}
           type: ImageChange
     metadata:
       annotations:
         openshift.io/generated-by: OpenShiftNewApp
       labels:
-        app: ${NAME}-${OUTPUT_TAG}
+        app: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
         version: ${OUTPUT_TAG}
-      name: ${NAME}-${OUTPUT_TAG}
+      name: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
   - apiVersion: v1
     kind: Service
     spec:
@@ -73,23 +70,23 @@ objects:
           protocol: TCP
           targetPort: 8080
       selector:
-        app: ${NAME}-${OUTPUT_TAG}
+        app: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
     metadata:
       annotations:
         openshift.io/generated-by: OpenShiftNewApp
       labels:
-        app: ${NAME}-${OUTPUT_TAG}
+        app: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
         version: ${OUTPUT_TAG}
-      name: ${NAME}-${OUTPUT_TAG}
+      name: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
   - apiVersion: route.openshift.io/v1
     kind: Route
     metadata:
       annotations:
         openshift.io/host.generated: "true"
       labels:
-        app: ${NAME}-${OUTPUT_TAG}
+        app: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
         version: ${OUTPUT_TAG}
-      name: ${NAME}-${OUTPUT_TAG}
+      name: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
       namespace: ${NAMESPACE}
     spec:
       host: 
@@ -97,6 +94,6 @@ objects:
         targetPort: 8080
       to:
         kind: Service
-        name: ${NAME}-${OUTPUT_TAG}
+        name: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
         weight: 100
       wildcardPolicy: None
