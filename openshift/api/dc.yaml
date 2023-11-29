@@ -1,0 +1,102 @@
+kind: Template
+apiVersion: template.openshift.io/v1
+parameters:
+  - name: APP_PORT
+    description: the application port
+    value: '8080'
+  - name: OUTPUT_TAG
+    description: The output image tag
+    default: dev
+    required: true
+  - name: NAME
+    required: true
+    description: the name of the components
+  - name: NAMESPACE
+    required: true
+    default: c183df-dev
+    description: the spacespace to deploy to
+objects:
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    spec:
+      replicas: 1
+      selector:
+        app: ${NAME}-${OUTPUT_TAG}
+        deploymentConfig: ${NAME}
+      strategy:
+        resources: {}
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            app: ${NAME}-${OUTPUT_TAG}
+            deploymentConfig: ${NAME}
+        spec:
+          containers:
+            - image: >-
+                image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${NAME}:${OUTPUT_TAG}
+              name: ${NAME}
+              env:
+                - name: PORT
+                  value: '8080'
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources: {}
+      test: false
+      triggers:
+        - type: ConfigChange
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${NAME}
+            from:
+              kind: ImageStreamTag
+              name: '${NAME}:${OUTPUT_TAG}'
+              namespace: ${NAMESPACE}
+          type: ImageChange
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: ${NAME}-${OUTPUT_TAG}
+        version: ${OUTPUT_TAG}
+      name: ${NAME}-${OUTPUT_TAG}
+  - apiVersion: v1
+    kind: Service
+    spec:
+      ports:
+        - name: web
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: ${NAME}-${OUTPUT_TAG}
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: ${NAME}-${OUTPUT_TAG}
+        version: ${OUTPUT_TAG}
+      name: ${NAME}-${OUTPUT_TAG}
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      annotations:
+        openshift.io/host.generated: "true"
+      labels:
+        app: ${NAME}-${OUTPUT_TAG}
+        version: ${OUTPUT_TAG}
+      name: ${NAME}-${OUTPUT_TAG}
+      namespace: ${NAMESPACE}
+    spec:
+      host: 
+      port:
+        targetPort: 8080
+      to:
+        kind: Service
+        name: ${NAME}-${OUTPUT_TAG}
+        weight: 100
+      wildcardPolicy: None
