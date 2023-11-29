@@ -89,7 +89,7 @@ objects:
       name: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
       namespace: ${NAMESPACE}
     spec:
-      host: 
+      host: ""
       port:
         targetPort: 8080
       to:
@@ -97,3 +97,5 @@ objects:
         name: ${DEPLOYMENT_NAME}-${OUTPUT_TAG}
         weight: 100
       wildcardPolicy: None
+    status:
+      ingress: null
