@@ -19,4 +19,4 @@ objects:
         timeout: 10
         type: tcp
       service: ${TSC_NAME}
-      servicePort: 8080
+      servicePort: 3000
